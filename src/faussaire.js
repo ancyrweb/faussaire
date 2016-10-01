@@ -8,7 +8,6 @@ const responseFactory = require('./response');
  * @returns {boolean}
  */
 const isMatching = (route, url) => {
-  // The route might as well be an URL or a template.
   return new RegExp(route).test(url);
 };
 
@@ -34,7 +33,10 @@ const createFaussaire = () => {
      * @param route ({
      *  template => string,
      *  methods => array,
-     *  controller => {authenticate(params, options), run(params, options)}
+     *  controller => {
+     *    authenticate(params, options),
+     *    run(params, options)
+     *  }
      * })
      * A route is represented by a template and the HTTP methods.
      *
