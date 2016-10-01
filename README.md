@@ -24,25 +24,25 @@ You can register a route using faussaire.Route.
 ```js
 import faussaire from 'Faussaire';
 
-  faussaire
-    .Route({
-      template: "http://foo.com",
-      methods: ["GET"],
-      controller: {
-        run: (params, options) => {
-          return faussaire.Response({
-            data: {
-              foo: params.foo,
-              bar: params.bar
-            },
-            status: 200,
-            statusText: "OK"
-          })
-        }
+faussaire
+  .Route({
+    template: "http://foo.com",
+    methods: ["GET"],
+    controller: {
+      run: (params, options) => {
+        return faussaire.Response({
+          data: {
+            foo: params.foo,
+            bar: params.bar
+          },
+          status: 200,
+          statusText: "OK"
+        })
       }
-    });
+    }
+  });
 
-    const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
+const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
 ```
 ### Authentication
 
@@ -53,37 +53,37 @@ If the authentication fail, there wont be any token object in options.
 ```js
 import faussaire from 'Faussaire';
 
-  faussaire
-    .Route({
-      template: "http://foo.com/ressouce",
-      methods: ["GET"],
-      controller: {
-        authenticate: function(params, options){
-          if(params.apikey){
-            return {
-              apikey: params.apikey
-              at: Date.now()
-              expire: //...
-            }
+faussaire
+  .Route({
+    template: "http://foo.com/ressouce",
+    methods: ["GET"],
+    controller: {
+      authenticate: function(params, options){
+        if(params.apikey){
+          return {
+            apikey: params.apikey
+            at: Date.now()
+            expire: //...
           }
-        },
-        run: (params, options) => {
-          if(options.token){
-            return faussaire.Response({
-              status: 200,
-              statusText: "OK"
-            })
-          }
-
+        }
+      },
+      run: (params, options) => {
+        if(options.token){
           return faussaire.Response({
-            status: 403,
-            statusText: "Wrong credentials"
+            status: 200,
+            statusText: "OK"
           })
         }
-      }
-    });
 
-    const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
+        return faussaire.Response({
+          status: 403,
+          statusText: "Wrong credentials"
+        })
+      }
+    }
+  });
+
+const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
 ```
 ## API
 
