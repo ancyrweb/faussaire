@@ -27,7 +27,7 @@ return a response object. Using the `fetch()` method you can easily make calls a
 You can register a route using faussaire.Route.
 
 ```js
-import faussaire from 'Faussaire';
+import faussaire from 'faussaire';
 
 faussaire
   .Route({
@@ -56,7 +56,7 @@ controller. It should return a token in case of success and it will be stored in
 If the authentication fail, there wont be any token object in options.
 
 ```js
-import faussaire from 'Faussaire';
+import faussaire from 'faussaire';
 
 faussaire
   .Route({
