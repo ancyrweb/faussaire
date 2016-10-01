@@ -5,6 +5,11 @@ Lightweight javascript library to mock network request for testing purposes
 This project is still an idea and probably needs further improvements. Suggests and PR are
 welcome.
 
+## Installation
+```
+npm install --save-dev faussaire
+```
+
 ## Overview
 
 Faussaire is library aiming to mock an API in tests. As said Robert C. Martin in
