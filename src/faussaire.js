@@ -27,7 +27,7 @@ const createFaussaire = () => {
     headers: {}
   });
 
-  return {
+  const faussaire = {
     /**
      * Add a route to faussaire
      *
@@ -47,7 +47,7 @@ const createFaussaire = () => {
      */
     Route: (route) => {
       _routes.push(route);
-      return this;
+      return faussaire;
     },
 
     Response: (obj) => {
@@ -94,6 +94,8 @@ const createFaussaire = () => {
 
     onNotFoundError: response => { _onNotFoundError = response; }
   };
+
+  return faussaire;
 };
 
 module.exports = createFaussaire();

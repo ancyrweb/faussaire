@@ -7,7 +7,7 @@
     "lint": "eslint . && echo 'Lint finished...\n'",
     "test": "node tests/index.js",
     "start": "webpack-dev-server --content-base build/",
-    "build": "webpack && babel src/router.js --out-dir lib",
+    "build": "webpack && babel src/faussaire.js --out-dir build",
     "update": "updtr"
   },
   "repository": {

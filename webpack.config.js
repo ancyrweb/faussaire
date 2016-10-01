@@ -7,7 +7,7 @@ module.exports = {
   ],
   output: {
     path: path.resolve(__dirname),
-    filename: 'router.js'
+    filename: 'faussaire.js'
   },
   module: {
     loaders:[
