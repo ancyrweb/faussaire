@@ -7,4 +7,4 @@ const response = (obj) => {
   }, obj);
 };
 
-module.exports = response;
+export default response;

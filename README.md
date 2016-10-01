@@ -1,4 +1,4 @@
-# Faussaire
+# Faussaire v0.1.5
 Lightweight javascript library to mock network request for testing purposes
 
 ## Status
@@ -27,15 +27,15 @@ return a response object. Using the `fetch()` method you can easily make calls a
 You can register a route using faussaire.Route.
 
 ```js
-import faussaire from 'faussaire';
+import faussaire, {Route, Controller, Response} from 'faussaire';
 
 faussaire
-  .Route({
+  .route(Route({
     template: "http://foo.com",
     methods: ["GET"],
-    controller: {
+    controller: Controller({
       run: (params, options) => {
-        return faussaire.Response({
+        return Response({
           data: {
             foo: params.foo,
             bar: params.bar
@@ -44,8 +44,8 @@ faussaire
           statusText: "OK"
         })
       }
-    }
-  });
+    })
+  }));
 
 const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
 ```
@@ -56,25 +56,25 @@ controller. It should return a token in case of success and it will be stored in
 If the authentication fail, there wont be any token object in options.
 
 ```js
-import faussaire from 'faussaire';
+import faussaire, {Route, Controller, Response} from 'faussaire';
 
 faussaire
-  .Route({
+  .route(Route({
     template: "http://foo.com/ressouce",
     methods: ["GET"],
-    controller: {
+    controller: Controller({
       authenticate: function(params, options){
         if(params.apikey){
           return {
-            apikey: params.apikey
-            at: Date.now()
+            apikey: params.apikey,
+            at: Date.now(),
             expire: //...
           }
         }
       },
       run: (params, options) => {
         if(options.token){
-          return faussaire.Response({
+          return Response({
             status: 200,
             statusText: "OK"
           })
@@ -85,8 +85,8 @@ faussaire
           statusText: "Wrong credentials"
         })
       }
-    }
-  });
+    })
+  }));
 
 const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
 ```
@@ -96,11 +96,26 @@ const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux
 
 The equivalent of a standard fetch.
 
-### faussaire.Route: (route) => faussaire
+### faussaire.route: (route) => faussaire
 
 Adds a route to Faussaire.
 
-### faussaire.Response: (Object) => Object
+### Route: (Object) => Object
+
+Return a route with :
+* template : usually a URL or a Regex. If the URL matches the template, the controller starts processing.
+* methods : an array of HTTP methods to handle (basically ["GET"])
+* controller : a Controller type object processing the request.
+
+#### Controller: (Object) => Object
+
+Return a controller with :
+* `run(params, options)`: this function must return a response. The options holds a method entry and might have additionnal
+data passed by authenticate for example.
+* `authenticate(params, options')`: must return an object representing an authentication token if the request hold
+enough information to recognize the user, or return nothing/undefined.
+
+### Response: (Object) => Object
 
 Return a basic HTTP response with :
 * data : the body's response
@@ -147,3 +162,5 @@ export default fetch;
 * Handle data storage and standard functions to avoid repeating schemas (like CRUD)
 * Simulate timeout if wanted (you probably don't in testing but might be useful for offline support)
 * Get closer to what a network request flow should look alike (in term of headers, etc)
+* Add Listeners which look for a certain template and then call subscribers when it happen, and/or pass additional
+options to the controller (like Symfony Events Listeners)

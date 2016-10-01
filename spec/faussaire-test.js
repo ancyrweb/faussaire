@@ -1,20 +1,20 @@
-const faussaire = require('../src/faussaire');
+import faussaire, {Route, Controller, Response} from '../src/faussaire';
 
 describe('Faussaire should mock API', function(){
   faussaire
-    .Route({
+    .route(Route({
       template: "http://foo.com",
       methods: ["GET"],
-      controller: {
+      controller: Controller({
         run: () => {
-          return faussaire.Response({
+          return Response({
             data: {},
             status: 200,
             statusText: "OK"
           })
         }
-      }
-    });
+      })
+    }));
 
   it('should fetch data from a correct URL', function(){
     const response = faussaire.fetch("http://foo.com", "GET");

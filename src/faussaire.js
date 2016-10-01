@@ -1,4 +1,6 @@
-const responseFactory = require('./response');
+import responseFactory from './response';
+import routeFactory from './route';
+import controllerFactory from './controller';
 
 /**
  * Return true if the url is matching the route
@@ -47,13 +49,9 @@ const createFaussaire = () => {
      * The run function is the only one to be able to return a response, which is an object
      * corresponding to the response object definition (see response.js)
      */
-    Route: (route) => {
+    route: (route) => {
       _routes.push(route);
       return faussaire;
-    },
-
-    Response: (obj) => {
-      return responseFactory(obj);
     },
 
     /**
@@ -100,4 +98,7 @@ const createFaussaire = () => {
   return faussaire;
 };
 
-module.exports = createFaussaire();
+export default createFaussaire();
+export const Route = routeFactory;
+export const Controller = controllerFactory;
+export const Response = responseFactory;
