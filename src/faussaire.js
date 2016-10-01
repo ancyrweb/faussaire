@@ -99,4 +99,3 @@ const createFaussaire = () => {
 };
 
 module.exports = createFaussaire();
-module.exports.response = responseFactory;
