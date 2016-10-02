@@ -1,4 +1,4 @@
-# Faussaire v0.1.5
+# Faussaire v0.1.7
 Lightweight javascript library to mock network request for testing purposes
 
 ## Status
@@ -154,6 +154,7 @@ export default fetch;
 * Not implementing Promise yet
 * Makes you rewrite an API, only for testing and offline development, which is a cost of time
 * Young and therefore lacks possibilities
+* Must be updated as your backend evolves
 
 ## Evolutions
 
@@ -164,3 +165,4 @@ export default fetch;
 * Get closer to what a network request flow should look alike (in term of headers, etc)
 * Add Listeners which look for a certain template and then call subscribers when it happen, and/or pass additional
 options to the controller (like Symfony Events Listeners)
+* Create an additionnal library to manage storage and simulate a database
