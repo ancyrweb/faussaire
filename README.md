@@ -166,3 +166,6 @@ export default fetch;
 * Add Listeners which look for a certain template and then call subscribers when it happen, and/or pass additional
 options to the controller (like Symfony Events Listeners)
 * Create an additionnal library to manage storage and simulate a database
+
+## Related
+* [faussaire-util](https://github.com/Rewieer/faussaire-util), bundle utilitary functions for faussaire
