@@ -1,4 +1,4 @@
-# Faussaire v0.1.7
+# Faussaire v0.1.8
 Lightweight javascript library to mock network request for testing purposes
 
 ## Status
@@ -49,6 +49,40 @@ faussaire
 
 const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
 ```
+
+#### The params object
+
+Usually, all controller's method can access the params. It is an object composed of :
+* `query` : holds GET parameters (`?foo=1&bar=2`)
+* `request` : holds POST parameters
+* `route` : holds routing request (see below)
+
+#### Templating
+
+You can give a simple URL to a template, but if you want to build complex URL matching, you can use Regex.
+```js
+faussaire.route(
+  Route({
+    template: "http://foo.com/(\\w+)/access",
+    methods: ["GET"],
+    ...
+  })
+);
+```
+
+You can also match routing point with values and get them in the parameters using brackets.
+```js
+faussaire.route(
+  Route({
+    template: "http://foo.com/posts/{id}",
+    methods: ["GET"],
+    ...
+  })
+);
+```
+
+You will find the ID in `params.route.id`.
+
 ### Authentication
 
 You can as well pre-authenticate the user sending a request by defining an `authenticate(params, options)` in the

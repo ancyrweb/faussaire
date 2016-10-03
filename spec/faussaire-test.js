@@ -50,7 +50,7 @@ describe('Faussaire should mock API', function(){
       })
     }))
     .route(Route({
-      template: "http://bar.com/test/(\\d+)",
+      template: "http://bar.com/test/{id}",
       methods: ["GET"],
       controller: Controller({
         run: () => {

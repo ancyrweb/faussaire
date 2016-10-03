@@ -2,7 +2,7 @@
   "name": "faussaire",
   "version": "0.1.8",
   "description": "Lightweight library to mock API for testing purpose",
-  "main": "build/faussaire.js",
+  "main": "build/src/faussaire.js",
   "scripts": {
     "lint": "eslint . && echo 'Lint finished...\n'",
     "test": "node tests/index.js",

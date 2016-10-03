@@ -10,6 +10,7 @@ import controllerFactory from './controller';
  * @type {string}
  */
 const URLArgsRegex = "((\\?)([^=]+)(=(.+))?)?$";
+
 /**
  * Return true if the url is matching the route
  *
@@ -18,21 +19,29 @@ const URLArgsRegex = "((\\?)([^=]+)(=(.+))?)?$";
  * @returns {boolean}
  */
 const isMatching = (route, url) => {
-  return new RegExp(route + URLArgsRegex).test(url);
+  const urlRegex = route.replace(/{(\w)+}/g, "(.+)") + URLArgsRegex;
+  return new RegExp(urlRegex).test(url);
 };
 
+/**
+ * Extract all the arguments from the parameters, following the ? in the URL
+ * @param url
+ * @returns {{}}
+ */
 const extractURLArgs = (url) => {
-  var argSection = url.split('?');
-  if(argSection[1]){
-    var argPairs = argSection[1].split('&');
+  var str = url.split('?'),
+      obj = {}
+  ;
 
-    if(argPairs.length === 0){
-      return {};
+  if(str[1]){
+    var pairs = str[1].split('&');
+
+    if(pairs.length === 0){
+      return obj;
     }
 
-    var obj = {};
-    [].slice.call(argPairs).forEach(function(argPair){
-      var keyValue = argPair.split("=");
+    [].slice.call(pairs).forEach(function(pair){
+      var keyValue = pair.split("=");
       obj[keyValue[0]] = keyValue[1];
     });
 
@@ -40,6 +49,36 @@ const extractURLArgs = (url) => {
   }
 
   return {};
+};
+
+/**
+ * Extract routing parameters
+ *
+ * From template such as http://url.com/post/{id}
+ * with url such as http://url.com/post/3
+ * This function will match ID with the value 3.
+ *
+ * @param template
+ * @param url
+ * @returns {{}}
+ */
+const extractRouteParameters = function(template, url){
+  var keys = [];
+
+  var urlRegex = template.replace(/{(\w)+}/g, function(arg){
+    keys.push(arg.substr(1, arg.length - 2));
+    return "([^?]+)";
+  });
+
+  var regex = new RegExp(urlRegex);
+  var routeArgs = regex.exec(url);
+
+  var obj = {};
+  [].slice.call(routeArgs, 1).forEach(function(t, i){
+    obj[keys[i]] = t;
+  });
+
+  return obj;
 };
 
 /**
@@ -102,7 +141,10 @@ const createFaussaire = () => {
           continue;
         }
 
-        var query = [], request = [];
+        var query   = [],
+            request = [],
+            route   = extractRouteParameters(_routes[i].template, url)
+          ;
 
         // In GET methods, there's no need to read request's body
         // If there is a requestBody in the fetch, the user still probably
@@ -117,7 +159,8 @@ const createFaussaire = () => {
 
         const params = {
           query,
-          request
+          request,
+          route
         };
 
         // Object holding data about the process
