@@ -3,6 +3,14 @@ import routeFactory from './route';
 import controllerFactory from './controller';
 
 /**
+ * Regex to match urls ending with "?args=value" and to make it
+ * match precise routes.
+ * See https://github.com/Rewieer/faussaire/issues/1
+ *
+ * @type {string}
+ */
+const URLArgsRegex = "((\\?)([^=]+)(=(.+))?)?$";
+/**
  * Return true if the url is matching the route
  *
  * @param route
@@ -10,7 +18,7 @@ import controllerFactory from './controller';
  * @returns {boolean}
  */
 const isMatching = (route, url) => {
-  return new RegExp(route).test(url);
+  return new RegExp(route + URLArgsRegex).test(url);
 };
 
 const extractURLArgs = (url) => {

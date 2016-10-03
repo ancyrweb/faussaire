@@ -35,6 +35,32 @@ describe('Faussaire should mock API', function(){
           }
         }
       })
+    }))
+    .route(Route({
+      template: "http://bar.com/test",
+      methods: ["GET"],
+      controller: Controller({
+        run: () => {
+          return Response({
+            data: { match: "test" },
+            status: 200,
+            statusText: "OK"
+          })
+        }
+      })
+    }))
+    .route(Route({
+      template: "http://bar.com/test/(\\d+)",
+      methods: ["GET"],
+      controller: Controller({
+        run: () => {
+          return Response({
+            data: { match: "test with id" },
+            status: 200,
+            statusText: "OK"
+          })
+        }
+      })
     }));
 
   it('should fetch data from a correct URL', function(){
@@ -74,5 +100,15 @@ describe('Faussaire should mock API', function(){
   it('should refuse the request having forgot the apikey', function(){
     const response = faussaire.fetch("http://bar.com", "GET");
     expect(response.status).toEqual(403);
+  });
+
+  it('should match http://bar.com/test and return object to identify it', function(){
+    const response = faussaire.fetch("http://bar.com/test", "GET");
+    expect(response.data.match).toEqual("test");
+  });
+
+  it('should match http://bar.com/test/(\\d+) and return object to identify it', function(){
+    const response = faussaire.fetch("http://bar.com/test/10", "GET");
+    expect(response.data.match).toEqual("test with id");
   });
 });
