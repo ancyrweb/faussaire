@@ -1,6 +1,6 @@
 {
   "name": "faussaire",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Lightweight library to mock API for testing purpose",
   "main": "build/faussaire.js",
   "scripts": {
