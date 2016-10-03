@@ -37,8 +37,8 @@ faussaire
       run: (params, options) => {
         return Response({
           data: {
-            foo: params.foo,
-            bar: params.bar
+            foo: params.query.foo,
+            bar: params.query.bar
           },
           status: 200,
           statusText: "OK"
@@ -66,7 +66,7 @@ faussaire
       authenticate: function(params, options){
         if(params.apikey){
           return {
-            apikey: params.apikey,
+            apikey: params.query.apikey,
             at: Date.now(),
             expire: //...
           }
