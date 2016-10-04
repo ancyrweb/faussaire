@@ -13,6 +13,27 @@ const isMatching = (route, url) => {
   return new RegExp(route).test(url);
 };
 
+const extractURLArgs = (url) => {
+  var argSection = url.split('?');
+  if(argSection[1]){
+    var argPairs = argSection[1].split('&');
+
+    if(argPairs.length === 0){
+      return {};
+    }
+
+    var obj = {};
+    [].slice.call(argPairs).forEach(function(argPair){
+      var keyValue = argPair.split("=");
+      obj[keyValue[0]] = keyValue[1];
+    });
+
+    return obj;
+  }
+
+  return {};
+};
+
 /**
  * Create a faussaire instance
  *
@@ -58,11 +79,12 @@ const createFaussaire = () => {
      * Fetch the data synchronously.
      * @param url
      * @param method
-     * @param params
+     * @param requestBody
      * @returns response
      */
-    fetch: (url, method, params) => {
+    fetch: (url, method, requestBody) => {
       for(var i = 0; i < _routes.length; i++){
+
         if(!isMatching(_routes[i].template, url)) {
           continue;
         }
@@ -72,6 +94,23 @@ const createFaussaire = () => {
           continue;
         }
 
+        var query = [], request = [];
+
+        // In GET methods, there's no need to read request's body
+        // If there is a requestBody in the fetch, the user still probably
+        // Wants them to be considered as query parameters
+        if(method === "GET"){
+          query = Object.assign({}, extractURLArgs(url), requestBody);
+          request = [];
+        } else {
+          query = extractURLArgs(url);
+          request = requestBody;
+        }
+
+        const params = {
+          query,
+          request
+        };
 
         // Object holding data about the process
         const options = {

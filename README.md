@@ -165,7 +165,8 @@ export default fetch;
 * Get closer to what a network request flow should look alike (in term of headers, etc)
 * Add Listeners which look for a certain template and then call subscribers when it happen, and/or pass additional
 options to the controller (like Symfony Events Listeners)
-* Create an additionnal library to manage storage and simulate a database
+* Create an additional library to manage storage and simulate a database
+* Start an idiomatic-faussaire tutorial to use it properly
 
 ## Related
 * [faussaire-util](https://github.com/Rewieer/faussaire-util), bundle utilitary functions for faussaire
