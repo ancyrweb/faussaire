@@ -35,6 +35,35 @@ describe('Faussaire should mock API', function(){
           }
         }
       })
+<<<<<<< HEAD
+=======
+    }))
+    .route(Route({
+      template: "http://bar.com/test",
+      methods: ["GET"],
+      controller: Controller({
+        run: () => {
+          return Response({
+            data: { match: "test" },
+            status: 200,
+            statusText: "OK"
+          })
+        }
+      })
+    }))
+    .route(Route({
+      template: "http://bar.com/test/{id}",
+      methods: ["GET"],
+      controller: Controller({
+        run: () => {
+          return Response({
+            data: { match: "test with id" },
+            status: 200,
+            statusText: "OK"
+          })
+        }
+      })
+>>>>>>> 14184140cb9501e1b6aee547b3b65fada27cba80
     }));
 
   it('should fetch data from a correct URL', function(){
@@ -75,4 +104,17 @@ describe('Faussaire should mock API', function(){
     const response = faussaire.fetch("http://bar.com", "GET");
     expect(response.status).toEqual(403);
   });
+<<<<<<< HEAD
+=======
+
+  it('should match http://bar.com/test and return object to identify it', function(){
+    const response = faussaire.fetch("http://bar.com/test", "GET");
+    expect(response.data.match).toEqual("test");
+  });
+
+  it('should match http://bar.com/test/(\\d+) and return object to identify it', function(){
+    const response = faussaire.fetch("http://bar.com/test/10", "GET");
+    expect(response.data.match).toEqual("test with id");
+  });
+>>>>>>> 14184140cb9501e1b6aee547b3b65fada27cba80
 });
