@@ -1,4 +1,4 @@
-# Faussaire v0.1.8
+# Faussaire v0.1.9
 Lightweight javascript library to mock network request for testing purposes
 
 ## Status
@@ -47,7 +47,12 @@ faussaire
     })
   }));
 
-const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
+const response = faussaire.fetch("http://foo.com", "GET", {
+  params: {
+    foo: "bar",
+    bar: "qux"
+  }
+});
 ```
 
 #### The params object
@@ -114,7 +119,7 @@ faussaire
           })
         }
 
-        return faussaire.Response({
+        return Response({
           status: 403,
           statusText: "Wrong credentials"
         })
@@ -122,7 +127,12 @@ faussaire
     })
   }));
 
-const response = faussaire.fetch("http://foo.com", "GET", {foo: "bar", bar: "qux"});
+const response = faussaire.fetch("http://foo.com", "GET", {
+  params: {
+    foo: "bar",
+    bar: "qux"
+  }
+});
 ```
 ## API
 

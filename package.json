@@ -1,11 +1,11 @@
 {
   "name": "faussaire",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Lightweight library to mock API for testing purpose",
   "main": "build/src/faussaire.js",
   "scripts": {
     "lint": "eslint . && echo 'Lint finished...\n'",
-    "test": "node tests/index.js",
+    "test": "jasmine",
     "start": "webpack-dev-server --content-base build/",
     "build": "babel src/* --out-dir build",
     "update": "updtr"

@@ -129,57 +129,51 @@ const createFaussaire = () => {
      * @param requestBody
      * @returns response
      */
-    fetch: (url, method, requestBody) => {
-      for(var i = 0; i < _routes.length; i++){
+    fetch: (url, method, requestBody = {}) => {
+      const matchingRoute = _routes.find(r =>
+        isMatching(r.template, url) && r.methods.indexOf(method.toUpperCase()) > -1
+      );
 
-        if(!isMatching(_routes[i].template, url)) {
-          continue;
-        }
-
-        // Checking if the method matches the routes
-        if(_routes[i].methods.indexOf(method.toUpperCase()) < 0){
-          continue;
-        }
-
-        var query   = [],
-            request = [],
-            route   = extractRouteParameters(_routes[i].template, url)
-          ;
-
-        // In GET methods, there's no need to read request's body
-        // If there is a requestBody in the fetch, the user still probably
-        // Wants them to be considered as query parameters
-        if(method === "GET"){
-          query = Object.assign({}, extractURLArgs(url), requestBody);
-          request = [];
-        } else {
-          query = extractURLArgs(url);
-          request = requestBody;
-        }
-
-        const params = {
-          query,
-          request,
-          route
-        };
-
-        // Object holding data about the process
-        const options = {
-          method
-        };
-
-        if(typeof _routes[i].controller.authenticate === 'function'){
-          const token = _routes[i].controller.authenticate(params, options);
-
-          if(typeof token !== 'undefined'){
-            options.token = token;
-          }
-        }
-
-        return _routes[i].controller.run(params, options);
+      if(!matchingRoute) {
+        return _onNotFoundError;
       }
 
-      return _onNotFoundError;
+      var query   = [],
+          request = [],
+          route   = extractRouteParameters(matchingRoute.template, url)
+        ;
+
+      // In GET methods, there's no need to read request's body
+      // If there is a requestBody in the fetch, the user still probably
+      // Wants them to be considered as query parameters
+      if(method === "GET"){
+        query = Object.assign({}, extractURLArgs(url), requestBody.params);
+        request = [];
+      } else {
+        query = Object.assign({}, extractURLArgs(url), requestBody.params);
+        request = requestBody.data;
+      }
+
+      const params = {
+        query,
+        request,
+        route
+      };
+
+      // Object holding data about the process
+      const options = {
+        method
+      };
+
+      if(typeof matchingRoute.controller.authenticate === 'function'){
+        const token = matchingRoute.controller.authenticate(params, options);
+
+        if(typeof token !== 'undefined'){
+          options.token = token;
+        }
+      }
+
+      return matchingRoute.controller.run(params, options);
     },
 
     onNotFoundError: response => { _onNotFoundError = response; }

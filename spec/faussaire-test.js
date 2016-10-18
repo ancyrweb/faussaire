@@ -87,13 +87,31 @@ describe('Faussaire should mock API', function(){
     expect(response.status).toEqual(200);
   });
 
+  it('should accept the request having mentionned the apikey in the params', function(){
+    const response = faussaire.fetch("http://bar.com?titi=toto", "GET", {
+      params: {
+        apikey: "azerty"
+      }
+    });
+
+    expect(response.status).toEqual(200);
+  });
+
   it('should accept the request having mentionned the apikey in the parameters', function(){
-    const response = faussaire.fetch("http://bar.com", "GET", {"apikey": "azerty"});
+    const response = faussaire.fetch("http://bar.com", "GET", {
+      params: {
+        apikey: "azerty"
+      }
+    });
     expect(response.status).toEqual(200);
   });
 
   it('should accept the request having mentionned the apikey in the POST parameters', function(){
-    const response = faussaire.fetch("http://bar.com", "POST", {"apikey": "azerty"});
+    const response = faussaire.fetch("http://bar.com", "POST", {
+      data: {
+        apikey: "azerty"
+      }
+    });
     expect(response.status).toEqual(200);
   });
 
