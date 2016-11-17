@@ -19,7 +19,7 @@ const URLArgsRegex = "((\\?)([^=]+)(=(.+))?)?$";
  * @returns {boolean}
  */
 const isMatching = (route, url) => {
-  const urlRegex = route.replace(/{(\w)+}/g, "(.+)") + URLArgsRegex;
+  const urlRegex = route.replace(/{(\w)+}/g, "([^/]+)") + URLArgsRegex;
   return new RegExp(urlRegex).test(url);
 };
 
