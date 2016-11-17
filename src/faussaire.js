@@ -29,19 +29,19 @@ const isMatching = (route, url) => {
  * @returns {{}}
  */
 const extractURLArgs = (url) => {
-  var str = url.split('?'),
+  let str = url.split('?'),
       obj = {}
   ;
 
   if(str[1]){
-    var pairs = str[1].split('&');
+    let pairs = str[1].split('&');
 
     if(pairs.length === 0){
       return obj;
     }
 
     [].slice.call(pairs).forEach(function(pair){
-      var keyValue = pair.split("=");
+      let keyValue = pair.split("=");
       obj[keyValue[0]] = keyValue[1];
     });
 
@@ -63,17 +63,17 @@ const extractURLArgs = (url) => {
  * @returns {{}}
  */
 const extractRouteParameters = function(template, url){
-  var keys = [];
+  let keys = [];
 
-  var urlRegex = template.replace(/{(\w)+}/g, function(arg){
+  let urlRegex = template.replace(/{(\w)+}/g, function(arg){
     keys.push(arg.substr(1, arg.length - 2));
     return "([^?]+)";
   });
 
-  var regex = new RegExp(urlRegex);
-  var routeArgs = regex.exec(url);
+  let regex = new RegExp(urlRegex);
+  let routeArgs = regex.exec(url);
 
-  var obj = {};
+  let obj = {};
   [].slice.call(routeArgs, 1).forEach(function(t, i){
     obj[keys[i]] = t;
   });
@@ -88,13 +88,17 @@ const extractRouteParameters = function(template, url){
  */
 const createFaussaire = () => {
 
-  var _routes = [];
-  var _onNotFoundError = responseFactory({
+  let _routes = [];
+  let _onNotFoundError = responseFactory({
     data: {},
     status: 404,
     statusText: "Route not found.",
     headers: {}
   });
+
+  const throwError = (obj) => {
+    return Object.assign({}, new Error(), obj);
+  };
 
   const faussaire = {
     /**
@@ -135,10 +139,12 @@ const createFaussaire = () => {
       );
 
       if(!matchingRoute) {
-        return _onNotFoundError;
+        throw throwError({
+          response: _onNotFoundError
+        });
       }
 
-      var query   = [],
+      let query   = [],
           request = [],
           route   = extractRouteParameters(matchingRoute.template, url)
         ;
@@ -173,9 +179,20 @@ const createFaussaire = () => {
         }
       }
 
-      return matchingRoute.controller.run(params, options);
+      const response = matchingRoute.controller.run(params, options);
+      if(response.status >= 400){
+        throw throwError({
+          response
+        });
+      }
+
+      return response;
     },
 
+    /**
+     * Set custom error when not found
+     * @param response
+     */
     onNotFoundError: response => { _onNotFoundError = response; }
   };
 

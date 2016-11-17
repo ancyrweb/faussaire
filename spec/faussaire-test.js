@@ -78,8 +78,11 @@ describe('Faussaire should mock API', function(){
   });
 
   it('should fetch data from a wrong URL', function(){
-    const response = faussaire.fetch("http://wrong.com", "GET");
-    expect(response.status).toEqual(404);
+    try {
+      faussaire.fetch("http://wrong.com", "GET");
+    } catch(error){
+      expect(error.response.status).toEqual(404);
+    }
   });
 
   it('should accept the request having mentionned the apikey in the URL', function(){
@@ -116,8 +119,11 @@ describe('Faussaire should mock API', function(){
   });
 
   it('should refuse the request having forgot the apikey', function(){
-    const response = faussaire.fetch("http://bar.com", "GET");
-    expect(response.status).toEqual(403);
+    try{
+      faussaire.fetch("http://bar.com", "GET");
+    } catch(error){
+      expect(error.response.status).toEqual(403);
+    }
   });
 
   it('should match http://bar.com/test and return object to identify it', function(){

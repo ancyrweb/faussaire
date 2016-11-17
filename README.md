@@ -177,7 +177,7 @@ This is how it can be implemented :
 import fetch from 'fetch';
 import faussaire from 'faussaire';
 
-const fetch = (url, method, params) => {
+const request = (url, method, params) => {
   if(process.env.NODE_ENV === "test"){
     return faussaire(url, method, params);
   }
@@ -185,7 +185,7 @@ const fetch = (url, method, params) => {
   return fetch(url, method, params);
 };
 
-export default fetch;
+export default request;
 ```
 
 ## Pros and Cons
@@ -207,7 +207,7 @@ export default fetch;
 * Handle data storage and standard functions to avoid repeating schemas (like CRUD)
 * Simulate timeout if wanted (you probably don't in testing but might be useful for offline support)
 * Get closer to what a network request flow should look alike (in term of headers, etc)
-* Add Listeners which look for a certain template and then call subscribers when it happen, and/or pass additional
+* Add Listeners to look for a certain template and then call subscribers when it happen, and/or pass additional
 options to the controller (like Symfony Events Listeners)
 * Create an additional library to manage storage and simulate a database
 * Start an idiomatic-faussaire tutorial to use it properly
