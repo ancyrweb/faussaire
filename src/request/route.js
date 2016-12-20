@@ -1,4 +1,13 @@
-const route = (obj) => {
+// @flow
+import type Controller from './controller';
+
+export type RouteType = {
+  template: string,
+  methods: Array<string>,
+  controller: Controller
+}
+
+const createRoute = (obj: Object): RouteType =>  {
   return Object.assign({}, {
     template: "",
     methods: ["GET"],
@@ -6,4 +15,4 @@ const route = (obj) => {
   }, obj);
 };
 
-export default route;
+export default createRoute;

@@ -1,3 +1,5 @@
+// @flow
+
 /**
  * Regex to match urls ending with "?args=value" and to make it
  * match precise routes.
@@ -14,9 +16,25 @@ const URLArgsRegex = "((\\?)([^=]+)(=(.+))?)?$";
  * @param url
  * @returns {boolean}
  */
-export const isMatching = (route, url) => {
+export const isMatching = (route: string, url: string):boolean => {
   const urlRegex = route.replace(/{(\w)+}/g, "([^/]+)") + URLArgsRegex;
   return new RegExp(urlRegex).test(url);
+};
+
+export const splitURIAndArgs = (url: string): Object => {
+  const splitUrl = url.split('?');
+
+  let output: {uri: string, args: ?string} = {
+    uri: splitUrl[0],
+    args: undefined
+  };
+
+  if(splitUrl[1]){
+    output.args = splitUrl[1];
+  }
+
+
+  return output;
 };
 
 /**
@@ -24,13 +42,14 @@ export const isMatching = (route, url) => {
  * @param url
  * @returns {{}}
  */
-export const extractURLArgs = (url) => {
-  let str = url.split('?'),
-    obj = {}
+export const extractURLArgs = (url: string):Object => {
+  let
+    urlObject     = splitURIAndArgs(url),
+    obj           = {}
     ;
 
-  if(str[1]){
-    let pairs = str[1].split('&');
+  if(urlObject.args){
+    let pairs = urlObject.args.split('&');
 
     if(pairs.length === 0){
       return obj;
@@ -58,10 +77,11 @@ export const extractURLArgs = (url) => {
  * @param url
  * @returns {{}}
  */
-export const extractRouteParameters = (template, url) => {
+export const extractRouteParameters = (template: string, url: string): Object => {
   let keys = [];
 
-  let urlRegex = template.replace(/{(\w)+}/g, function(arg){
+  // Store every key, and return a regex instead.
+  let urlRegex = template.replace(/{(\w)+}/g, arg => {
     keys.push(arg.substr(1, arg.length - 2));
     return "([^?]+)";
   });
@@ -70,9 +90,10 @@ export const extractRouteParameters = (template, url) => {
   let routeArgs = regex.exec(url);
 
   let obj = {};
-  [].slice.call(routeArgs, 1).forEach(function(t, i){
-    obj[keys[i]] = t;
+  [].slice.call(routeArgs, 1).forEach((value, index) => {
+    obj[keys[index]] = value;
   });
+
 
   return obj;
 };

@@ -1,7 +1,13 @@
 import responseFactory from './request/response';
 import routeFactory from './request/route';
+import type { RouteType } from './request/route';
+
 import controllerFactory from './request/controller';
 import { isMatching, extractURLArgs, extractRouteParameters } from './stringUtil';
+
+const createError = (obj) => {
+  return obj;
+};
 
 /**
  * Create a faussaire instance
@@ -10,7 +16,7 @@ import { isMatching, extractURLArgs, extractRouteParameters } from './stringUtil
  */
 const createFaussaire = () => {
 
-  let _routes = [];
+  let _routes:Array<RouteType> = [];
   let _onNotFoundError = responseFactory({
     data: {},
     status: 404,
@@ -18,22 +24,10 @@ const createFaussaire = () => {
     headers: {}
   });
 
-  const throwError = (obj) => {
-    return Object.assign({}, new Error(), obj);
-  };
 
   const faussaire = {
     /**
-     * Add a route to faussaire
-     *
-     * @param route ({
-     *  template => string,
-     *  methods => array,
-     *  controller => {
-     *    authenticate(params, options),
-     *    run(params, options)
-     *  }
-     * })
+     * Add a route to faussaire*
      * A route is represented by a template and the HTTP methods.
      *
      * A controller is called once the associated route match.
@@ -43,7 +37,7 @@ const createFaussaire = () => {
      * The run function is the only one to be able to return a response, which is an object
      * corresponding to the response object definition (see response.js)
      */
-    route: (route) => {
+    route: (route: RouteType) => {
       _routes.push(route);
       return faussaire;
     },
@@ -55,31 +49,27 @@ const createFaussaire = () => {
      * @param requestBody
      * @returns Promise
      */
-    fetch: (url, method, requestBody = {}) => {
+    fetch: (url: string, method: string, requestBody: Object = {}) => {
       return new Promise((accept, reject) => {
-        const matchingRoute = _routes.find(r =>
-          isMatching(r.template, url) && r.methods.indexOf(method.toUpperCase()) > -1
-        );
+        const matchingRoute:?RouteType = _routes.find((route: RouteType):boolean => {
+          return isMatching(route.template, url) &&
+            route.methods.indexOf(method.toUpperCase()) > -1
+        });
 
         if(!matchingRoute) {
-          reject(throwError({
+          reject(createError({
             response: _onNotFoundError
           }));
+          return;
         }
 
-        let query   = [],
-          request = [],
-          route   = extractRouteParameters(matchingRoute.template, url)
+        let
+          query     = Object.assign({}, extractURLArgs(url), requestBody.params),
+          request   = [],
+          route     = extractRouteParameters(matchingRoute.template, url)
           ;
 
-        // In GET methods, there's no need to read request's body
-        // If there is a requestBody in the fetch, the user still probably
-        // Wants them to be considered as query parameters
-        if(method === "GET"){
-          query = Object.assign({}, extractURLArgs(url), requestBody.params);
-          request = [];
-        } else {
-          query = Object.assign({}, extractURLArgs(url), requestBody.params);
+        if(method !== "GET"){
           request = requestBody.data;
         }
 
@@ -91,22 +81,27 @@ const createFaussaire = () => {
 
         // Object holding data about the process
         const options = {
-          method
+          method,
+          token: undefined,
         };
 
+        // Authenticating if required
         if(typeof matchingRoute.controller.authenticate === 'function'){
           const token = matchingRoute.controller.authenticate(params, options);
 
-          if(typeof token !== 'undefined'){
+          // If the token returned is a falsy value, then authentication failed.
+          if(token != false){
             options.token = token;
           }
         }
 
         const response = matchingRoute.controller.run(params, options);
         if(response.status >= 400){
-          reject(throwError({
+          reject(createError({
             response
           }));
+
+          return;
         }
 
         return accept(response);
@@ -117,7 +112,7 @@ const createFaussaire = () => {
      * Set custom error when not found
      * @param response
      */
-    onNotFoundError: response => { _onNotFoundError = response; }
+    onNotFoundError: (response: Response) => { _onNotFoundError = response; }
   };
 
   return faussaire;
