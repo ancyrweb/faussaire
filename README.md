@@ -13,7 +13,7 @@ npm install --save-dev faussaire
 ## Overview
 
 Faussaire is library aiming to mock an API in tests. As said Robert C. Martin in
-the [Ruby Midwest 2011 Conf](https://www.youtube.com/watch?v=WpkDN78P884), tests should be completely independant from
+the [Ruby Midwest 2011 Conf](https://www.youtube.com/watch?v=WpkDN78P884), tests should be completely independent from
 your webservices, your database or whatever kind of IO device / Network implementation. Following this idea, one should
 be able to use a fake API with a similar behavior of any server.
 
