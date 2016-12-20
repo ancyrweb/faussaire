@@ -1,5 +1,5 @@
 // @flow
-import type Controller from './controller';
+import type { Controller } from './controller';
 
 export type RouteType = {
   template: string,

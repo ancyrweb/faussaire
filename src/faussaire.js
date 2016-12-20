@@ -1,3 +1,4 @@
+// @flow
 import responseFactory from './request/response';
 import routeFactory from './request/route';
 import type { RouteType } from './request/route';
@@ -14,10 +15,10 @@ const createError = (obj) => {
  *
  * @returns {Object}
  */
-const createFaussaire = () => {
+const create = () => {
 
   let _routes:Array<RouteType> = [];
-  let _onNotFoundError = responseFactory({
+  let _notFoundResponse = responseFactory({
     data: {},
     status: 404,
     statusText: "Route not found.",
@@ -56,10 +57,12 @@ const createFaussaire = () => {
             route.methods.indexOf(method.toUpperCase()) > -1
         });
 
+        // If no route is found, throw a notFound error.
         if(!matchingRoute) {
           reject(createError({
-            response: _onNotFoundError
+            response: _notFoundResponse
           }));
+
           return;
         }
 
@@ -90,7 +93,7 @@ const createFaussaire = () => {
           const token = matchingRoute.controller.authenticate(params, options);
 
           // If the token returned is a falsy value, then authentication failed.
-          if(token != false){
+          if(token){
             options.token = token;
           }
         }
@@ -112,13 +115,13 @@ const createFaussaire = () => {
      * Set custom error when not found
      * @param response
      */
-    onNotFoundError: (response: Response) => { _onNotFoundError = response; }
+    setNotFoundResponse: (response: Response) => { _notFoundResponse = response; }
   };
 
   return faussaire;
 };
 
-export default createFaussaire();
+export default create();
 export const Route = routeFactory;
 export const Controller = controllerFactory;
 export const Response = responseFactory;
