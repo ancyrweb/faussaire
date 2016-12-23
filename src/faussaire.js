@@ -5,6 +5,7 @@ import type { RouteType } from './request/route';
 
 import controllerFactory from './request/controller';
 import { isMatching, extractURLArgs, extractRouteParameters } from './stringUtil';
+import storeContainerFactory from './storage/storeContainer';
 
 const createError = (obj) => {
   return obj;
@@ -27,6 +28,8 @@ const create = () => {
 
 
   const faussaire = {
+    storage: storeContainerFactory.createStoreContainer(),
+
     /**
      * Add a route to faussaire
      * A route is represented by a template and the HTTP methods.

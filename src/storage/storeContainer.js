@@ -10,6 +10,10 @@ export type StoreContainerType = {
   assemble: (entity: StorableType) => Object;
 }
 
+export type AssembleConfiguration = {
+  schema: ?Array<string|Array>
+};
+
 /**
  * Create a StoreContainer
  * @returns {StoreContainerType}
@@ -57,13 +61,29 @@ const createStoreContainer = (): StoreContainerType => {
     },
 
     /**
-     * Assemble an entity by linking the StorableLink to their actual ressource
+     * Assemble an entity, returns the wanted data
      * @param entity
+     * @param config
      * @returns {{}}
      */
-    assemble: (entity: StorableType): Object => {
+    assemble: (entity: StorableType, config: AssembleConfiguration): Object => {
+      let data = entity.getData();
 
-      return {};
+      if(config.hasOwnProperty("schema")){
+        let nextData = {};
+        let schema = config.schema;
+
+        // Return only the wanted keys
+        Object.keys(data).forEach((key: string) => {
+          if(schema.indexOf(key) >= 0){
+            nextData[key] = data[key];
+          }
+        });
+
+        return nextData;
+      }
+
+      return data;
     }
   };
 
