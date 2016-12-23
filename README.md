@@ -1,4 +1,4 @@
-# Faussaire v0.2.2
+# Faussaire v0.3.0
 Lightweight javascript library to mock network request for testing purposes
 
 ## Status
