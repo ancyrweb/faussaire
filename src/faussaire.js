@@ -28,7 +28,7 @@ const create = () => {
 
   const faussaire = {
     /**
-     * Add a route to faussaire*
+     * Add a route to faussaire
      * A route is represented by a template and the HTTP methods.
      *
      * A controller is called once the associated route match.
@@ -52,9 +52,10 @@ const create = () => {
      */
     fetch: (url: string, method: string, requestBody: Object = {}) => {
       return new Promise((accept, reject) => {
-        const matchingRoute:?RouteType = _routes.find((route: RouteType):boolean => {
-          return isMatching(route.template, url) &&
-            route.methods.indexOf(method.toUpperCase()) > -1
+
+        // First finding the route and checking the method
+        const matchingRoute : ?RouteType = _routes.find((route: RouteType):boolean => {
+          return isMatching(route.template, url) && route.methods.indexOf(method.toUpperCase()) >= 0
         });
 
         // If no route is found, throw a notFound error.
@@ -72,10 +73,12 @@ const create = () => {
           route     = extractRouteParameters(matchingRoute.template, url)
           ;
 
+        // In case of anything but a GET request, we fill the request variable with the body's data
         if(method !== "GET"){
           request = requestBody.data;
         }
 
+        // params to be passed to runners
         const params = {
           query,
           request,
