@@ -64,4 +64,45 @@ describe('Faussaire should mock API', function() {
       })
     }
   });
+
+  it('fetch the user at the given URL when in-test added', async() => {
+    faussaire.storage.getStore("Users").add({id: 3, username: "Doe", password: "azerty_john"});
+
+    let response = await faussaire.fetch("http://foo.com/3", "GET");
+    expect(response).toEqual({
+      data: {
+        user: {
+          username: "Doe",
+        }
+      },
+      headers: {},
+      status: 200,
+      statusText: "OK",
+    });
+
+    // When resetting, the initial state is kept.
+    faussaire.storage.resetAll();
+    try {
+      await faussaire.fetch("http://foo.com/3", "GET");
+    } catch(e){
+      expect(e.response).toEqual({
+        data: {},
+        headers: {},
+        status: 404,
+        statusText: "NOT FOUND",
+      })
+    }
+
+    response = await faussaire.fetch("http://foo.com/1", "GET");
+    expect(response).toEqual({
+      data: {
+        user: {
+          username: "Rewieer",
+        }
+      },
+      headers: {},
+      status: 200,
+      statusText: "OK",
+    })
+  });
 });
