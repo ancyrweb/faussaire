@@ -5,12 +5,6 @@ export type StorableData = {
   id: number,
 }
 
-export type StorableSchemaField = {
-  name: string,
-  type: string
-};
-
-// TODO : create a dedicated "schema" entry
 export type StorableType = {
   getData: () => StorableData,
   setData: (schema: StorableData) => void,
