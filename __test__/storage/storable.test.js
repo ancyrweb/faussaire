@@ -10,9 +10,19 @@ test('create a storable', () => {
     name: "test",
   });
 
-  expect(storable).toEqual({
+  expect(storable.getData()).toEqual({
     id: 1,
     name: "test"
+  });
+  expect(storable.getSchema()).toEqual({
+    id: {
+      name: "id",
+      type: "number",
+    },
+    name: {
+      name: "name",
+      type: "string",
+    }
   });
 });
 

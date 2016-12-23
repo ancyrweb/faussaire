@@ -20,38 +20,95 @@ const createStore = (name: string, initialState: Array<StorableType> = []):Store
   let storeInitialState: Array<StorableType> = initialState;
 
   const store: StoreType = {
-    name,
+    /**
+     * @var string
+     */
+    name: name,
 
+    /**
+     * Restore the initial state of the store
+     * @returns {StoreType}
+     */
     reset: () => {
       items = Array.from(storeInitialState);
       return store;
     },
+
+    /**
+     * Add a storable to the store
+     * @param entity
+     * @returns {StoreType}
+     */
     addStorable: (entity: StorableType): StoreType => {
-      items.push(entity);
-      return store;
-    },
-    add: (entity: Object): StoreType => {
-      items.push(storableFactory.createStorable(entity));
-      return store;
-    },
-    remove: (id: number): StoreType => {
-      items = items.filter((entity: StorableType) => entity.id !== id);
-      return store;
-    },
-    update: (id: number, next: StorableType):StoreType => {
-      for(let i = 0; i < items.length; i++){
-        if(items[i].id === id){
-          items[i] = next;
-          break;
-        }
-      }
+      items = [
+        ...items,
+        entity
+      ];
 
       return store;
     },
-    get: (id: number): ?StorableType => {
-      return items.find((entity: StorableType):boolean => entity.id === id);
+
+    /**
+     * Convert an object into a storable and add it to the store
+     * @param entity
+     * @returns {StoreType}
+     */
+    add: (entity: Object): StoreType => {
+      items = [
+        ...items,
+        storableFactory.createStorable(entity)
+      ];
+
+      return store;
     },
+
+    /**
+     * Remove the storable from the store
+     * @param id
+     * @returns {StoreType}
+     */
+    remove: (id: number): StoreType => {
+      items = items.filter((entity: StorableType) => entity.getData().id !== id);
+      return store;
+    },
+
+    /**
+     * Update the storable with a new storable
+     * @param id
+     * @param next
+     * @returns {StoreType}
+     */
+    update: (id: number, next: StorableType):StoreType => {
+      items = items.map((storable: StorableType) => {
+        if(storable.getData().id !== id){
+          return storable;
+        }
+
+        return next;
+      });
+
+      return store;
+    },
+
+    /**
+     * Return the storable having the given ID
+     * @param id
+     * @returns {StorableType}
+     */
+    get: (id: number): ?StorableType => {
+      return items.find((entity: StorableType):boolean => entity.getData().id === id);
+    },
+
+    /**
+     * Return the store
+     * @returns {Array<StorableType>}
+     */
     all: (): Array<StorableType> => items,
+
+    /**
+     * Create a storable
+     * @returns {StorableType}
+     */
     createStorable: storableFactory.createStorable,
   };
 

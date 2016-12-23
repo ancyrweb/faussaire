@@ -1,14 +1,30 @@
 // @flow
 import StorableException from './exception/storableException';
 
+export type StorableData = {
+  id: number,
+}
+
+export type StorableSchemaField = {
+  name: string,
+  type: string
+};
+
+// TODO : create a dedicated "schema" entry
 export type StorableType = {
-  id: number
+  getData: () => StorableData,
+  setData: (schema: StorableData) => void,
+  getSchema: () => Object,
 };
 
 export type StorableFactoryType = {
   createStorable: (object: Object) => StorableType
 };
 
+/**
+ * Return true if the parameter is scalar
+ * @param obj
+ */
 export const isScalar = (obj: any) => (/string|number|boolean/).test(typeof obj);
 
 /**
@@ -31,11 +47,29 @@ const createStorable = (object: Object): StorableType => {
     }
   });
 
-  return object;
+  return ((entity: Object): StorableType => {
+    let _data = Object.assign({}, entity);
+    let _schema = {};
+
+    Object.keys(entity).forEach(key => {
+      _schema[key] = {
+        name: key,
+        type: typeof entity[key]
+      };
+    });
+
+    return  {
+      getData:() : StorableData => _data,
+      setData: (data: StorableData) => {
+        _data = Object.assign({}, data);
+      },
+      getSchema:() : Object => _schema,
+    };
+  })(object);
 };
 
 const storableFactory: StorableFactoryType = {
   createStorable
-}
+};
 
 export default storableFactory;

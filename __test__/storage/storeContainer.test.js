@@ -27,10 +27,8 @@ test('reset all', () => {
     .add({ id: 2, username: "Doe"})
   ;
 
-  expect(storeContainer.getStore("Users").all()).toEqual([
-    { id: 1, username: "John" },
-    { id: 2, username: "Doe" }
-  ]);
+  expect(storeContainer.getStore("Users").get(1).getData()).toEqual({ id: 1, username: "John" });
+  expect(storeContainer.getStore("Users").get(2).getData()).toEqual({ id: 2, username: "Doe" });
 
   expect(storeContainer.resetAll().getStore("Users").all()).toEqual([]);
 });
