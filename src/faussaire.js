@@ -5,7 +5,11 @@ import type { RouteType } from './request/route';
 
 import controllerFactory from './request/controller';
 import { isMatching, extractURLArgs, extractRouteParameters } from './stringUtil';
+
 import storeContainerFactory from './storage/storeContainer';
+import storeFactory from './storage/store';
+import storableFactory from './storage/storable';
+import storableLinkFactory from './storage/storableLink';
 
 const createError = (obj) => {
   return obj;
@@ -131,3 +135,9 @@ export default create();
 export const Route = routeFactory;
 export const Controller = controllerFactory;
 export const Response = responseFactory;
+export const Storage = {
+  storeContainerFactory,
+  storeFactory,
+  storableFactory,
+  storableLinkFactory
+};
