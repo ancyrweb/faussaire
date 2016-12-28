@@ -16,8 +16,8 @@ export type StoreType = {
 };
 
 const createStore = (name: string, initialState: Array<StorableType> = []):StoreType => {
-  let items: Array<StorableType> = initialState;
-  let storeInitialState: Array<StorableType> = initialState;
+  let items: Array<StorableType> = Array.from(initialState);
+  let storeInitialState: Array<StorableType> = Array.from(initialState);
 
   const store: StoreType = {
     /**

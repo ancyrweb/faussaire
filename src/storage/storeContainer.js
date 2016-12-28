@@ -3,16 +3,18 @@ import type { StoreType } from './store';
 import type { StorableType } from './storable';
 
 export type StoreContainerType = {
-  getStore: (name: string) => ?StoreType;
-  addStore: (store: StoreType) => StoreContainerType;
+  getStore: (name: string) => ?StoreType,
+  addStore: (store: StoreType) => StoreContainerType,
   all: () => Array<StoreType>,
-  resetAll: () => StoreContainerType;
-  assemble: (entity: StorableType) => Object;
+  resetAll: () => StoreContainerType,
+  assemble: (entity: StorableType, config: AssembleConfiguration) => Object,
 }
 
 export type AssembleConfiguration = {
-  schema: ?Array<string|Array>
+  schema: ?Array<any>
 };
+
+import { isStorableLink } from './storableLink';
 
 /**
  * Create a StoreContainer
@@ -61,29 +63,45 @@ const createStoreContainer = (): StoreContainerType => {
     },
 
     /**
-     * Assemble an entity, returns the wanted data
+     * Assemble an entity, returns the scalar version of the data
      * @param entity
      * @param config
      * @returns {{}}
      */
-    assemble: (entity: StorableType, config: AssembleConfiguration): Object => {
-      let data = entity.getData();
+    assemble: (entity: StorableType, config: AssembleConfiguration = {
+      schema: [],
+    }): Object => {
+      let data = Object.assign({}, entity.getData());
+      let nextData = {};
 
-      if(config.hasOwnProperty("schema")){
-        let nextData = {};
+      // If there's schema
+      if(config.hasOwnProperty("schema") && Array.isArray(config.schema) && config.schema.length){
+
+        // We remove all the keys we don't want
         let schema = config.schema;
-
-        // Return only the wanted keys
         Object.keys(data).forEach((key: string) => {
-          if(schema.indexOf(key) >= 0){
-            nextData[key] = data[key];
+          if (schema.indexOf(key) < 0) {
+            delete data[key];
           }
         });
-
-        return nextData;
       }
 
-      return data;
+      // We process the object in case of storableLink to manage
+      Object.keys(data).forEach((key: string) => {
+        if(isStorableLink(data[key])){
+          let storable = data[key].getStorable();
+
+          if(Array.isArray(storable)){
+            nextData[key] = storable.map((item: StorableType) => item.getData());
+          } else {
+            nextData[key] = storable.getData();
+          }
+        } else {
+          nextData[key] = data[key];
+        }
+      });
+
+      return nextData;
     }
   };
 
@@ -93,3 +111,24 @@ const createStoreContainer = (): StoreContainerType => {
 export default {
   createStoreContainer
 }
+
+/*
+ // Return only the wanted keys
+ Object.keys(data).forEach((key: string) => {
+ if(schema.indexOf(key) >= 0){
+ if(isStorableLink(data[key])){
+ let storable = data[key].getStorable();
+
+ if(Array.isArray(storable)){
+ nextData[key] = storable.map((item: StorableType) => item.getData());
+ } else {
+
+ }
+ } else {
+ nextData[key] = data[key];
+ }
+ }
+ });
+
+ return nextData;
+ */

@@ -26,6 +26,25 @@ test('create a storable', () => {
   });
 });
 
+test('merge without ID', () => {
+  const storable = storableFactory.createStorable({
+    id: 1,
+    name: "test",
+  });
+
+  storable.merge({ name: "will" });
+  expect(storable.getData()).toEqual({ id: 1, name: "will" });
+});
+
+test('merge with ID', () => {
+  const storable = storableFactory.createStorable({
+    id: 1,
+    name: "test",
+  });
+
+  expect(() => storable.merge({ id: 2, name: "will" })).toThrow();
+});
+
 test('creating a storable without an ID', () => {
   expect(() => {
     storableFactory.createStorable({

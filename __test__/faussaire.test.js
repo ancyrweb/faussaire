@@ -1,9 +1,15 @@
 import faussaire, {Route, Controller, Response} from '../src/faussaire';
 import storeFactory from '../src/storage/store';
+import storableLinkFactory from '../src/storage/storableLink';
 
 describe('Faussaire should mock API', function() {
+  let photoStore = storeFactory.createStore("Photos", [
+    storeFactory.createStorable({ id: 1, path: "/some/picture.jpg" }),
+    storeFactory.createStorable({ id: 2, path: "/some/other_picture.jpg" }),
+  ]);
+
   let userStore = storeFactory.createStore("Users", [
-    storeFactory.createStorable({id: 1, username: "Rewieer", password: "azerty_rewieer"}),
+    storeFactory.createStorable({id: 1, username: "Rewieer", password: "azerty_rewieer", photos: storableLinkFactory.toMany(photoStore, [1, 2])}),
     storeFactory.createStorable({id: 2, username: "John", password: "azerty_john"}),
   ]);
 
@@ -20,7 +26,7 @@ describe('Faussaire should mock API', function() {
             return Response({
               data: {
                 user: faussaire.storage.assemble(user, {
-                  schema: ["username"]
+                  schema: ["username", "photos"]
                 }),
               },
               status: 200,
@@ -36,7 +42,10 @@ describe('Faussaire should mock API', function() {
         }
       })
     }))
-    .storage.addStore(userStore);
+    .storage
+    .addStore(userStore)
+    .addStore(photoStore)
+  ;
 
   it('fetch the user at the given URL', async() => {
     const response = await faussaire.fetch("http://foo.com/1", "GET");
@@ -44,6 +53,10 @@ describe('Faussaire should mock API', function() {
       data: {
         user: {
           username: "Rewieer",
+          photos: [
+            { id: 1, path: "/some/picture.jpg" },
+            { id: 2, path: "/some/other_picture.jpg" }
+          ]
         }
       },
       headers: {},
@@ -66,13 +79,16 @@ describe('Faussaire should mock API', function() {
   });
 
   it('fetch the user at the given URL when in-test added', async() => {
-    faussaire.storage.getStore("Users").add({id: 3, username: "Doe", password: "azerty_john"});
+    faussaire.storage.getStore("Users").add({id: 3, username: "Doe", password: "azerty_john", photos: storableLinkFactory.toMany(photoStore, [1])});
 
     let response = await faussaire.fetch("http://foo.com/3", "GET");
     expect(response).toEqual({
       data: {
         user: {
           username: "Doe",
+          photos: [
+            { id: 1, path: "/some/picture.jpg" },
+          ]
         }
       },
       headers: {},
@@ -93,11 +109,16 @@ describe('Faussaire should mock API', function() {
       })
     }
 
+    // The initial user is kept
     response = await faussaire.fetch("http://foo.com/1", "GET");
     expect(response).toEqual({
       data: {
         user: {
           username: "Rewieer",
+          photos: [
+            { id: 1, path: "/some/picture.jpg" },
+            { id: 2, path: "/some/other_picture.jpg" }
+          ]
         }
       },
       headers: {},

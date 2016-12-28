@@ -1,5 +1,6 @@
 // @flow
 import StorableException from './exception/storableException';
+import { isStorableLink } from './storableLink';
 
 export type StorableData = {
   id: number,
@@ -7,7 +8,7 @@ export type StorableData = {
 
 export type StorableType = {
   getData: () => StorableData,
-  setData: (schema: StorableData) => void,
+  merge: (data: StorableData) => void,
   getSchema: () => Object,
 };
 
@@ -36,7 +37,7 @@ const createStorable = (object: Object): StorableType => {
   }
 
   Object.keys(object).forEach(key => {
-    if(!isScalar(object[key])){
+    if(!isScalar(object[key]) && !isStorableLink(object[key])){
       throw StorableException("A storable object must only have scalar values. Check the value for key " + key);
     }
   });
@@ -54,8 +55,13 @@ const createStorable = (object: Object): StorableType => {
 
     return  {
       getData:() : StorableData => _data,
-      setData: (data: StorableData) => {
-        _data = Object.assign({}, data);
+      merge: (data: StorableData) => {
+        if(data.id){
+          throw StorableException("You can't supply an ID in merge.");
+        }
+
+        // TODO : check for the ID key and remove it if it's in
+        _data = Object.assign({}, _data, data);
       },
       getSchema:() : Object => _schema,
     };
