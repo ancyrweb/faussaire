@@ -1,4 +1,4 @@
-# Faussaire v0.3.1 - Instable - Documentation not up to date
+# Faussaire v0.3.3 - Instable - Documentation not up to date
 Lightweight javascript library to mock network request for testing purposes
 
 ## Status
