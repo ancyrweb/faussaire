@@ -19,19 +19,25 @@ const createStoreContainer = () => {
 const createSingleLinkingStoreContainer = () => {
   const storeContainer = storeContainerFactory.createStoreContainer();
 
-  const photosStore = storeFactory.createStore("Photos", [
-    storeFactory.createStorable({ id: 1, path: "/some/picture.jpg" }),
-    storeFactory.createStorable({ id: 2, path: "/some/other_picture.jpg" }),
+  const albumStore = storeFactory.createStore("Albums", [
+    storeFactory.createStorable({ id: 1, name: "An Album" }),
+    storeFactory.createStorable({ id: 2, name: "Other album" }),
   ]);
 
-  let john = storeFactory.createStorable({id: 1, name: "John", profilePicture: storableLinkFactory.toOne(photosStore, 1)});
-  let doe =  storeFactory.createStorable({id: 2, name: "Doe", profilePicture: storableLinkFactory.toOne(photosStore, 2)});
+  const photosStore = storeFactory.createStore("Photos", [
+    storeFactory.createStorable({ id: 1, path: "/some/picture.jpg", album: storableLinkFactory.toOne(storeContainer, "Albums", 1)}),
+    storeFactory.createStorable({ id: 2, path: "/some/other_picture.jpg", album: storableLinkFactory.toOne(storeContainer, "Albums", 2)}),
+  ]);
+
+  let john = storeFactory.createStorable({id: 1, name: "John", profilePicture: storableLinkFactory.toOne(storeContainer, "Photos", 1)});
+  let doe =  storeFactory.createStorable({id: 2, name: "Doe", profilePicture: storableLinkFactory.toOne(storeContainer, "Photos", 2)});
 
   const userStore = storeFactory.createStore("Users", [
     john, doe
   ]);
 
   storeContainer.addStore(photosStore);
+  storeContainer.addStore(albumStore);
   storeContainer.addStore(userStore);
 
   return storeContainer;
@@ -45,8 +51,8 @@ const createMultipleLinkingStoreContainer = () => {
     storeFactory.createStorable({ id: 2, path: "/some/other_picture.jpg" }),
   ]);
 
-  let john = storeFactory.createStorable({id: 1, name: "John", photos: storableLinkFactory.toMany(photosStore, [1, 2])});
-  let doe =  storeFactory.createStorable({id: 2, name: "Doe", photos: storableLinkFactory.toMany(photosStore, [1])});
+  let john = storeFactory.createStorable({id: 1, name: "John", photos: storableLinkFactory.toMany(storeContainer, "Photos", [1, 2])});
+  let doe =  storeFactory.createStorable({id: 2, name: "Doe", photos: storableLinkFactory.toMany(storeContainer, "Photos", [1])});
 
   const userStore = storeFactory.createStore("Users", [
     john, doe
@@ -115,7 +121,14 @@ test('assemble with single linking', () => {
   expect(storeContainer.assemble(doe)).toEqual({
     id: 1,
     name: "John",
-    profilePicture: { id: 1, path: "/some/picture.jpg" },
+    profilePicture: {
+      id: 1,
+      path: "/some/picture.jpg",
+      album: {
+        id: 1,
+        name: "An Album"
+      }
+    },
   });
 });
 
@@ -125,4 +138,27 @@ test('assemble with a schema', () => {
   expect(storeContainer.assemble(doe, {
     schema: ["name"]
   })).toEqual({ name: "Doe" });
+});
+
+test('assemble alla', () => {
+  const storeContainer = createSingleLinkingStoreContainer();
+  const doe = storeContainer.getStore("Users").get(1);
+  expect(storeContainer.assembleAll({
+    user: doe,
+    role: "ADMIN",
+  })).toEqual({
+    user: {
+      id: 1,
+      name: "John",
+      profilePicture: {
+        id: 1,
+        path: "/some/picture.jpg",
+        album: {
+          id: 1,
+          name: "An Album"
+        }
+      },
+    },
+    role: "ADMIN",
+  });
 });

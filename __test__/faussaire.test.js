@@ -9,7 +9,7 @@ describe('Faussaire should mock API', function() {
   ]);
 
   let userStore = storeFactory.createStore("Users", [
-    storeFactory.createStorable({id: 1, username: "Rewieer", password: "azerty_rewieer", photos: storableLinkFactory.toMany(photoStore, [1, 2])}),
+    storeFactory.createStorable({id: 1, username: "Rewieer", password: "azerty_rewieer", photos: storableLinkFactory.toMany(faussaire.storage, "Photos", [1, 2])}),
     storeFactory.createStorable({id: 2, username: "John", password: "azerty_john"}),
   ]);
 
@@ -79,7 +79,7 @@ describe('Faussaire should mock API', function() {
   });
 
   it('fetch the user at the given URL when in-test added', async() => {
-    faussaire.storage.getStore("Users").add({id: 3, username: "Doe", password: "azerty_john", photos: storableLinkFactory.toMany(photoStore, [1])});
+    faussaire.storage.getStore("Users").add({id: 3, username: "Doe", password: "azerty_john", photos: storableLinkFactory.toMany(faussaire.storage, "Photos", [1])});
 
     let response = await faussaire.fetch("http://foo.com/3", "GET");
     expect(response).toEqual({

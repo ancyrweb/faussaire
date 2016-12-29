@@ -1,6 +1,7 @@
 // @flow
 import type { StorableType } from './storable';
 import type { StoreType } from './store';
+import type { StoreContainerType } from './storeContainer';
 
 export type StorableLinkType = {
   getStorable: () => ?StorableType|Array<?StorableType>
@@ -8,25 +9,27 @@ export type StorableLinkType = {
 
 /**
  * Representa oneToOne relationship
+ * @param container
  * @param store
  * @param id
  * @returns {{getStorable: (function())}}
  */
-export const toOne = (store: StoreType, id: number): StorableLinkType => {
+export const toOne = (container: StoreContainerType, store: string, id: number): StorableLinkType => {
   return {
-    getStorable: () => store.get(id)
+    getStorable: () => container.getStore(store).get(id)
   }
 };
 
 /**
  * Represents a oneToMany relationship
+ *  @param container
  * @param store
  * @param ids
  * @returns {{getStorable: (function(): Array)}}
  */
-export const toMany = (store: StoreType, ids: Array<number>): StorableLinkType => {
+export const toMany = (container: StoreContainerType, store: StoreType, ids: Array<number>): StorableLinkType => {
   return {
-    getStorable: () => ids.map(id => store.get(id))
+    getStorable: () => ids.map(id => container.getStore(store).get(id))
   }
 };
 
@@ -34,7 +37,7 @@ export const toMany = (store: StoreType, ids: Array<number>): StorableLinkType =
  * Return true if the given value is a storableLink
  * @param value
  */
-export const isStorableLink = (value: Object) => value.getStorable && typeof value.getStorable === "function";
+export const isStorableLink = (value: Object) => value && typeof value === "object" && value.getStorable && typeof value.getStorable === "function";
 export default {
   toOne,
   toMany,

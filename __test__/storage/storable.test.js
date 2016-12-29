@@ -26,6 +26,71 @@ test('create a storable', () => {
   });
 });
 
+test('create a storable with null values', () => {
+  const storable = storableFactory.createStorable({
+    id: 1,
+    name: "test",
+    photo: null,
+  });
+
+  expect(storable.getData()).toEqual({
+    id: 1,
+    name: "test",
+    photo: null,
+  });
+
+  expect(storable.getSchema()).toEqual({
+    id: {
+      name: "id",
+      type: "number",
+    },
+    name: {
+      name: "name",
+      type: "string",
+    },
+    photo: {
+      name: "photo",
+      type: "object",
+    },
+  });
+});
+
+test('create a storable with nested object', () => {
+  const storable = storableFactory.createStorable({
+    id: 1,
+    name: "test",
+    progress: {
+      level: 1,
+      exp: 200
+    },
+  });
+
+  expect(storable.getData()).toEqual({
+    id: 1,
+    name: "test",
+    progress: {
+      level: 1,
+      exp: 200
+    },
+  });
+
+  expect(storable.getSchema()).toEqual({
+    id: {
+      name: "id",
+      type: "number",
+    },
+    name: {
+      name: "name",
+      type: "string",
+    },
+    progress: {
+      name: "progress",
+      type: "object",
+    },
+  });
+});
+
+
 test('merge without ID', () => {
   const storable = storableFactory.createStorable({
     id: 1,
@@ -59,16 +124,6 @@ test('creating a storable with a function as a value throws', () => {
       id: 1,
       name: "test",
       fn: (a) => a,
-    });
-  }).toThrow();
-});
-
-test('creating a storable with an Object as a value throws', () => {
-  expect(() => {
-    storableFactory.createStorable({
-      id: 1,
-      name: "test",
-      obj: {},
     });
   }).toThrow();
 });

@@ -21,6 +21,24 @@ export type StorableFactoryType = {
  * @param obj
  */
 export const isScalar = (obj: any) => (/string|number|boolean/).test(typeof obj);
+const checkObjectValues = (object) => {
+  Object.keys(object).forEach(key => {
+    if(!isScalar(object[key]) && !isStorableLink(object[key]) && object[key] !== null){
+      if(typeof object[key] === "object" && !Array.isArray(object[key])){
+        checkObjectValues(object[key]);
+      } else {
+        throw StorableException("A storable object must only have scalar values. Check the value for key " + key);
+      }
+    }
+  });
+};
+
+const createTypeObject = (key, value) => {
+  return {
+    name: key,
+    type: typeof value
+  }
+};
 
 /**
  * Create a Storable from the given object.
@@ -36,21 +54,14 @@ const createStorable = (object: Object): StorableType => {
     throw StorableException("A storable must have an ID.");
   }
 
-  Object.keys(object).forEach(key => {
-    if(!isScalar(object[key]) && !isStorableLink(object[key])){
-      throw StorableException("A storable object must only have scalar values. Check the value for key " + key);
-    }
-  });
+  checkObjectValues(object);
 
   return ((entity: Object): StorableType => {
     let _data = Object.assign({}, entity);
     let _schema = {};
 
     Object.keys(entity).forEach(key => {
-      _schema[key] = {
-        name: key,
-        type: typeof entity[key]
-      };
+      _schema[key] = createTypeObject(key, entity[key])
     });
 
     return  {

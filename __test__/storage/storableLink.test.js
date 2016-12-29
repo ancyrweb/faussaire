@@ -1,4 +1,5 @@
 import storableLinkFactory from '../../src/storage/storableLink';
+import storeContainerFactory from '../../src/storage/storeContainer';
 import storeFactory from '../../src/storage/store';
 
 test('oneToOne storableLink', () => {
@@ -7,11 +8,14 @@ test('oneToOne storableLink', () => {
     storeFactory.createStorable({ id: 2, username: "Doe"})
   ]);
 
-  expect(storableLinkFactory.toOne(store, 1).getStorable().getData()).toEqual({ id: 1, username: "John"});
+  const storeContainer = storeContainerFactory.createStoreContainer();
+  storeContainer.addStore(store);
+
+  expect(storableLinkFactory.toOne(storeContainer, "Users", 1).getStorable().getData()).toEqual({ id: 1, username: "John"});
 
   // Checking for persistence
   store.get(1).merge({ username: "Will"});
-  expect(storableLinkFactory.toOne(store, 1).getStorable().getData()).toEqual({ id: 1, username: "Will"});
+  expect(storableLinkFactory.toOne(storeContainer, "Users", 1).getStorable().getData()).toEqual({ id: 1, username: "Will"});
 });
 
 test('oneToMany storableLink', () => {
@@ -20,7 +24,10 @@ test('oneToMany storableLink', () => {
     storeFactory.createStorable({ id: 2, username: "Doe"})
   ]);
 
-  let toMany = storableLinkFactory.toMany(store, [1, 2]);
+  const storeContainer = storeContainerFactory.createStoreContainer();
+  storeContainer.addStore(store);
+
+  let toMany = storableLinkFactory.toMany(storeContainer, "Users", [1, 2]);
 
   expect(toMany.getStorable()[0].getData()).toEqual({ id: 1, username: "John"});
   expect(toMany.getStorable()[1].getData()).toEqual({ id: 2, username: "Doe"});

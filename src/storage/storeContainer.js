@@ -8,6 +8,7 @@ export type StoreContainerType = {
   all: () => Array<StoreType>,
   resetAll: () => StoreContainerType,
   assemble: (entity: StorableType, config: AssembleConfiguration) => Object,
+  assembleAll: (object: Object, config: AssembleConfiguration) => Object,
 }
 
 export type AssembleConfiguration = {
@@ -15,6 +16,27 @@ export type AssembleConfiguration = {
 };
 
 import { isStorableLink } from './storableLink';
+
+const storableToScalarObject = (data) => {
+  let nextData = {};
+
+  // We process the object in case of storableLink to manage
+  Object.keys(data).forEach((key: string) => {
+    if(isStorableLink(data[key])){
+      let storable = data[key].getStorable();
+
+      if(Array.isArray(storable)){
+        nextData[key] = storable.map((item: StorableType) => storableToScalarObject(item.getData()));
+      } else {
+        nextData[key] = storableToScalarObject(storable.getData());
+      }
+    } else {
+      nextData[key] = data[key];
+    }
+  });
+
+  return nextData;
+};
 
 /**
  * Create a StoreContainer
@@ -72,7 +94,6 @@ const createStoreContainer = (): StoreContainerType => {
       schema: [],
     }): Object => {
       let data = Object.assign({}, entity.getData());
-      let nextData = {};
 
       // If there's schema
       if(config.hasOwnProperty("schema") && Array.isArray(config.schema) && config.schema.length){
@@ -86,16 +107,40 @@ const createStoreContainer = (): StoreContainerType => {
         });
       }
 
-      // We process the object in case of storableLink to manage
-      Object.keys(data).forEach((key: string) => {
-        if(isStorableLink(data[key])){
-          let storable = data[key].getStorable();
+      return storableToScalarObject(data);
+    },
 
-          if(Array.isArray(storable)){
-            nextData[key] = storable.map((item: StorableType) => item.getData());
-          } else {
-            nextData[key] = storable.getData();
+    /**
+     * Assemble all the keys of the object
+     * This is used when you want to assemble an object composed of multiple StorableType combined with
+     * scalar values
+     *
+     * @param object
+     * @param config
+     * @returns {{}}
+     */
+    assembleAll: (object: Object, config: AssembleConfiguration = {
+        schema: [],
+    }): Object => {
+      let data = Object.assign({}, object);
+
+      // If there's schema
+      if(config.hasOwnProperty("schema") && Array.isArray(config.schema) && config.schema.length){
+
+        // We remove all the keys we don't want
+        let schema = config.schema;
+        Object.keys(data).forEach((key: string) => {
+          if (schema.indexOf(key) < 0) {
+            delete data[key];
           }
+        });
+      }
+
+      let nextData = {};
+
+      Object.keys(data).forEach((key: string) => {
+        if(data[key].getData){
+          nextData[key] = storeContainer.assemble(data[key]);
         } else {
           nextData[key] = data[key];
         }
