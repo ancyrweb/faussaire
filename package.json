@@ -1,6 +1,6 @@
 {
   "name": "faussaire",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Lightweight library to mock API for testing purpose",
   "main": "build/faussaire.js",
   "scripts": {
@@ -46,5 +46,8 @@
     "updtr": "^0.2.1",
     "webpack": "^1.13.2",
     "webpack-dev-server": "^1.16.1"
+  },
+  "dependencies": {
+    "clone": "^2.1.0"
   }
 }

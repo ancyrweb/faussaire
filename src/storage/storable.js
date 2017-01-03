@@ -9,7 +9,7 @@ export type StorableData = {
 export type StorableType = {
   getData: () => StorableData,
   merge: (data: StorableData) => void,
-  getSchema: () => Object,
+  clone: () => StorableType,
 };
 
 export type StorableFactoryType = {
@@ -33,12 +33,6 @@ const checkObjectValues = (object) => {
   });
 };
 
-const createTypeObject = (key, value) => {
-  return {
-    name: key,
-    type: typeof value
-  }
-};
 
 /**
  * Create a Storable from the given object.
@@ -58,24 +52,20 @@ const createStorable = (object: Object): StorableType => {
 
   return ((entity: Object): StorableType => {
     let _data = Object.assign({}, entity);
-    let _schema = {};
 
-    Object.keys(entity).forEach(key => {
-      _schema[key] = createTypeObject(key, entity[key])
-    });
-
-    return  {
+    let obj = {
       getData:() : StorableData => _data,
       merge: (data: StorableData) => {
         if(data.id){
           throw StorableException("You can't supply an ID in merge.");
         }
 
-        // TODO : check for the ID key and remove it if it's in
         _data = Object.assign({}, _data, data);
       },
-      getSchema:() : Object => _schema,
+      clone: ():StorableType => createStorable(_data),
     };
+
+    return obj;
   })(object);
 };
 

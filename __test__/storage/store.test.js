@@ -14,6 +14,16 @@ test('creating a store', () => {
   expect(typeof store.all).toBe("function");
 });
 
+test('creating a store with default value', () => {
+  let john = storeFactory.createStorable({id: 1, name: "John"});
+  const store = storeFactory.createStore("Store", [
+    john
+  ]);
+
+  // They shouldn't point to the same data
+  expect(john.getData() === store.get(1).getData()).toBe(false);
+});
+
 test('createStorable', () => {
   const store = storeFactory.createStore("Store");
   const storable = store.createStorable({
@@ -105,6 +115,7 @@ test('reset', () => {
   expect(store.reset().all()).toEqual([]);
 });
 
+
 test('reset with default values', () => {
   let john = storeFactory.createStorable({id: 1, name: "John"});
   let doe =  storeFactory.createStorable({id: 2, name: "Doe"});
@@ -115,7 +126,7 @@ test('reset with default values', () => {
 
   store.addStorable(doe);
 
-  expect(store.reset().all()).toEqual([
-    john
-  ]);
+  store.reset();
+  expect(store.all().length).toBe(1);
+  expect(store.get(1).getData()).toEqual({ id: 1, name: "John" });
 });

@@ -14,15 +14,21 @@ test('create a storable', () => {
     id: 1,
     name: "test"
   });
-  expect(storable.getSchema()).toEqual({
-    id: {
-      name: "id",
-      type: "number",
-    },
-    name: {
-      name: "name",
-      type: "string",
-    }
+});
+
+test('clone a storable', () => {
+  const storable = storableFactory.createStorable({
+    id: 1,
+    name: "test",
+  });
+
+  const cloned = storable.clone();
+
+  // Data shouldn't be referentially equal.
+  expect(cloned.getData() === storable.getData()).toBe(false);
+  expect(cloned.getData()).toEqual({
+    id: 1,
+    name: "test"
   });
 });
 
@@ -37,21 +43,6 @@ test('create a storable with null values', () => {
     id: 1,
     name: "test",
     photo: null,
-  });
-
-  expect(storable.getSchema()).toEqual({
-    id: {
-      name: "id",
-      type: "number",
-    },
-    name: {
-      name: "name",
-      type: "string",
-    },
-    photo: {
-      name: "photo",
-      type: "object",
-    },
   });
 });
 
@@ -73,25 +64,20 @@ test('create a storable with nested object', () => {
       exp: 200
     },
   });
-
-  expect(storable.getSchema()).toEqual({
-    id: {
-      name: "id",
-      type: "number",
-    },
-    name: {
-      name: "name",
-      type: "string",
-    },
-    progress: {
-      name: "progress",
-      type: "object",
-    },
-  });
 });
 
 
 test('merge without ID', () => {
+  const storable = storableFactory.createStorable({
+    id: 1,
+    name: "test",
+  });
+
+  storable.merge({ name: "will" });
+  expect(storable.getData()).toEqual({ id: 1, name: "will" });
+});
+
+test('merge with a new value', () => {
   const storable = storableFactory.createStorable({
     id: 1,
     name: "test",

@@ -1,4 +1,5 @@
 // @flow
+import clone from 'clone';
 import type { StorableType } from './storable';
 import storableFactory from './storable';
 
@@ -15,9 +16,13 @@ export type StoreType = {
   createStorable: (object: Object) => StorableType
 };
 
+const cloneArrayOfStorable = (state: Array<StorableType>) : Array<StorableType> => {
+  return state.map((storable: StorableType) => storable.clone());
+};
+
 const createStore = (name: string, initialState: Array<StorableType> = []):StoreType => {
-  let items: Array<StorableType> = Array.from(initialState);
-  let storeInitialState: Array<StorableType> = Array.from(initialState);
+  let items: Array<StorableType> = cloneArrayOfStorable(initialState);
+  let storeInitialState: Array<StorableType> = cloneArrayOfStorable(initialState);
 
   const store: StoreType = {
     /**
