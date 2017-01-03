@@ -35,7 +35,7 @@ const createStore = (name: string, initialState: Array<StorableType> = []):Store
      * @returns {StoreType}
      */
     reset: () => {
-      items = Array.from(storeInitialState);
+      items = cloneArrayOfStorable(storeInitialState);
       return store;
     },
 
