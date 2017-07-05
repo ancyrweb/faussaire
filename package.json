@@ -1,8 +1,8 @@
 {
   "name": "faussaire",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Lightweight library to mock API for testing purpose",
-  "main": "lib/faussaire.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "jest --watch",
     "compile": "babel src/ --out-dir lib --ignore *.test.js",
