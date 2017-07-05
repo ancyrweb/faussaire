@@ -1,13 +1,16 @@
 // @flow
+/**
+ * Copyright (c) 2017-present, Evosphere.
+ * All rights reserved.
+ */
 
 /**
  * Regex to match urls ending with "?args=value" and to make it
  * match precise routes.
- * See https://github.com/Rewieer/faussaire/issues/1
  *
  * @type {string}
  */
-const URLArgsRegex = "((\\?)([^=]+)(=(.+))?)?$";
+const URLArgsRegex : string = "((\\?)([^=]+)(=(.+))?)?$";
 
 /**
  * Return true if the url is matching the route
@@ -16,10 +19,11 @@ const URLArgsRegex = "((\\?)([^=]+)(=(.+))?)?$";
  * @param url
  * @returns {boolean}
  */
-export const isMatching = (route: string, url: string):boolean => {
+export const isMatching = (route: string, url: string) : boolean => {
   const urlRegex = route.replace(/{(\w)+}/g, "([^/]+)") + URLArgsRegex;
   return new RegExp(urlRegex).test(url);
 };
+
 
 export const splitURIAndArgs = (url: string): Object => {
   const splitUrl = url.split('?');
@@ -46,7 +50,7 @@ export const extractURLArgs = (url: string):Object => {
   let
     urlObject     = splitURIAndArgs(url),
     obj           = {}
-    ;
+  ;
 
   if(urlObject.args){
     let pairs = urlObject.args.split('&');
