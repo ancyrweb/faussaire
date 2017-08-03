@@ -6,42 +6,19 @@
 
 import {
   isMatching,
-  extractRouteParameters,
+  applyTemplateToUrl,
   extractURLArgs
 } from './routingUtilitary';
 
-type HttpMethod = "POST" | "GET" | "PATCH" | "PUT" | "DELETE" | "OPTIONS";
+type HttpMethod = "POST" | "GET" | "PATCH" | "PUT" | "DELETE" | "HEAD" | "OPTIONS";
 type HttpRequestResult = {
   status: "done" | "network-error" | "timeout",
   response: mixed,
 }
-/**
- * Mutate the request to enhance it with pattern matching and routing and cool stuff
- * @param request
- * @param pattern
- */
-function enhanceRequest(request : Object, pattern : Object){
-  let
-    queryBag     = Object.assign({}, extractURLArgs(request.url), request.query),
-    requestBag   = {},
-    routeBag     = extractRouteParameters(pattern.url, request.url)
-  ;
-
-  // In case of anything but a GET request, we fill the request variable with the body's data
-  if(request.method !== "GET"){
-    requestBag = request.request;
-  }
-
-  request.query = queryBag;
-  request.request = requestBag;
-  request.route = routeBag;
-}
-
 type Waiter = {
   url: string,
   method: HttpMethod,
-  // If set to true, the waiter is removed after being called
-  consumable: boolean,
+  consumable: boolean, // If set to true, the waiter is removed after being called
   action: (request: Request) => Response | "timeout",
 };
 
@@ -55,9 +32,36 @@ export type Result = HttpRequestResult;
 export type Request = {
   url: string,
   method: HttpMethod,
-  query?: ?Object,
-  request?: ?Object,
+  query?: ?{[key: string]: mixed},
+  request?: ?{[key: string]: mixed},
+  route?: ?{[key: string]: mixed},
 };
+
+
+/**
+ * Mutate the request to enhance it :
+ * - pattern matching : match site.com/foo/{id} and site.com/foo/1 to return { id: 1 } in the route bag
+ * - extract URL arguments (foo=bar&qux) into the queryBag
+ * - fill in the request bag
+ * @param request
+ * @param url
+ */
+function enhanceRequest(request : Request, url : string){
+  let
+    queryBag     = Object.assign({}, extractURLArgs(request.url), request.query),
+    requestBag   = {},
+    routeBag     = applyTemplateToUrl(url, request.url)
+  ;
+
+  // In case of anything but a GET request, we fill the request variable with the body's data
+  if(request.method !== "GET"){
+    requestBag = request.request;
+  }
+
+  request.query = queryBag;
+  request.request = requestBag;
+  request.route = routeBag;
+}
 
 /**
  * @module Faussaire
@@ -117,7 +121,7 @@ Faussaire.prototype.emit = function(request: Request) : Result {
 
   if(correspondingWaiter){
     if(typeof correspondingWaiter.action === "function"){
-      enhanceRequest(request, correspondingWaiter);
+      enhanceRequest(request, correspondingWaiter.url);
 
       response = correspondingWaiter.action(request);
       result = { status: "done", response };
@@ -137,15 +141,31 @@ Faussaire.prototype.emit = function(request: Request) : Result {
   return result;
 };
 
+const defaultResults = {
+  timeout: {
+    response: null,
+    status: "timeout",
+  },
+  networkError: {
+    response: null,
+    status: "network-error",
+  },
+  notFound: {
+    response: {
+      statusCode: 404,
+      data: null,
+      headers: null,
+    },
+    status: "done",
+  }
+};
+
 /**
  * Create a generic timeout result
  * @returns {{response: null, status: string}}
  */
 Faussaire.createTimeoutResult = function(){
-  return {
-    response: null,
-    status: "timeout",
-  };
+  return defaultResults.timeout;
 };
 
 /**
@@ -153,10 +173,7 @@ Faussaire.createTimeoutResult = function(){
  * @returns {{response: null, status: string}}
  */
 Faussaire.createNetworkErrorResult = function(){
-  return {
-    response: null,
-    status: "network-error",
-  };
+  return defaultResults.networkError;
 };
 
 /**
@@ -164,14 +181,7 @@ Faussaire.createNetworkErrorResult = function(){
  * @returns {{response: {statusCode: number, data: null, headers: null}, status: string}}
  */
 Faussaire.createNotFoundResult = function(){
-  return {
-    response: {
-      statusCode: 404,
-      data: null,
-      headers: null,
-    },
-    status: "done",
-  };
+  return defaultResults.notFound;
 };
 
 export default {

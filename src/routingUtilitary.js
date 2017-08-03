@@ -24,8 +24,14 @@ export const isMatching = (route: string, url: string) : boolean => {
   return new RegExp(urlRegex).test(url);
 };
 
-
-export const splitURIAndArgs = (url: string): Object => {
+/**
+ * return an object containing the path and the args of an URL
+ * e.g : site.com/index?foo=bar would make { uri: site.com/index, args: foo=bar }
+ *
+ * @param url
+ * @returns {{uri: string, args: string}}
+ */
+export const splitPathAndArgs = (url: string): Object => {
   const splitUrl = url.split('?');
 
   let output: {uri: string, args: ?string} = {
@@ -37,7 +43,6 @@ export const splitURIAndArgs = (url: string): Object => {
     output.args = splitUrl[1];
   }
 
-
   return output;
 };
 
@@ -48,30 +53,29 @@ export const splitURIAndArgs = (url: string): Object => {
  */
 export const extractURLArgs = (url: string):Object => {
   let
-    urlObject     = splitURIAndArgs(url),
-    obj           = {}
+    urlObject     = splitPathAndArgs(url),
+    args           = {}
   ;
 
   if(urlObject.args){
     let pairs = urlObject.args.split('&');
-
     if(pairs.length === 0){
-      return obj;
+      return args;
     }
 
     [].slice.call(pairs).forEach(function(pair){
       let keyValue = pair.split("=");
-      obj[keyValue[0]] = keyValue[1];
+      args[keyValue[0]] = keyValue[1];
     });
 
-    return obj;
+    return args;
   }
 
   return {};
 };
 
 /**
- * Extract routing parameters
+ * Apply the template to the url to return captured values
  *
  * From template such as http://url.com/post/{id}
  * with url such as http://url.com/post/3
@@ -81,7 +85,7 @@ export const extractURLArgs = (url: string):Object => {
  * @param url
  * @returns {{}}
  */
-export const extractRouteParameters = (template: string, url: string): Object => {
+export const applyTemplateToUrl = (template: string, url: string): Object => {
   let keys = [];
 
   // Store every key, and return a regex instead.
@@ -97,7 +101,6 @@ export const extractRouteParameters = (template: string, url: string): Object =>
   [].slice.call(routeArgs, 1).forEach((value, index) => {
     obj[keys[index]] = value;
   });
-
 
   return obj;
 };
